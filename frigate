@@ -1,0 +1,106 @@
+#############################################
+# Configuração do MQTT
+#############################################
+mqtt:
+  host: 192.168.100.3  # Endereço do broker MQTT
+  port: 1883  # Porta padrão do MQTT, pode ser ajustada conforme necessário
+  topic_prefix: frigate  # Prefixo dos tópicos MQTT usados pelo Frigate
+  client_id: frigate  # Identificador único do cliente MQTT
+  user: valmir  # Usuário do broker MQTT
+  password: 6394@NpyH  # Senha do usuário no MQTT
+  stats_interval: 60  # Intervalo (em segundos) para enviar métricas
+
+#############################################
+# Configuração de Câmeras
+#############################################
+cameras:
+  ENTRADA:
+    ffmpeg:
+      inputs:
+        - path: rtsp://192.168.100.32:554/user=admin_password=tlJwpbo6_channel=0_stream=0&onvif=0.sdp?real_stream  # Caminho RTSP da câmera
+          roles:
+            - detect  # Usado para detecção de objetos
+            - clips  # Grava clipes de vídeo
+            - rtmp  # Permite streaming para visualização
+          input_args:
+            - -rtsp_transport
+            - tcp  # Usa TCP para transporte RTSP
+            - -c:v
+            - hevc  # Codec HEVC para compressão
+    detect:
+      height: 640  # Altura da resolução da câmera
+      width: 480  # Largura da resolução da câmera
+      fps: 5  # Frames por segundo para detecção
+    objects:
+      track:
+        - person  # Rastreia pessoas
+        - dog  # Rastreia cachorros
+        - car  # Rastreia carros
+    record:
+      enabled: true  # Ativa a gravação de vídeos
+      retain:
+        days: 360  # Mantém os vídeos por 360 dias
+    snapshots:
+      enabled: true  # Ativa a captura de snapshots
+      timestamp: true  # Inclui timestamp nos snapshots
+      bounding_box: true  # Mostra caixa delimitadora nos objetos detectados
+      retain:
+        default: 360  # Mantém snapshots por 360 dias
+    onvif:
+      host: 192.168.100.32  # Endereço ONVIF da câmera
+      port: 8899  # Porta ONVIF da câmera
+
+  GARAGEM:
+    ffmpeg:
+      inputs:
+        - path: rtsp://192.168.100.31:554/user=nrmt_password=y1hPRW88_channel=0_stream=0&onvif=0.sdp?real_stream  # Caminho RTSP da câmera
+          roles:
+            - detect
+            - clips
+            - rtmp
+          input_args:
+            - -rtsp_transport
+            - tcp
+            - -c:v
+            - hevc
+    detect:
+      height: 640
+      width: 480
+      fps: 5
+    objects:
+      track:
+        - person
+        - dog
+        - car
+    record:
+      enabled: true
+      retain:
+        days: 360  # Mantém os vídeos por 360 dias
+    snapshots:
+      enabled: true
+      timestamp: true
+      bounding_box: true
+      retain:
+        default: 0  # Mantém snapshots indefinidamente
+    onvif:
+      host: 192.168.100.31
+      port: 8899
+
+#############################################
+# Configuração de Detectores
+#############################################
+detectors:
+  cpu1:
+    type: cpu  # Usa CPU para processar detecções
+  cpu2:
+    type: cpu
+  cpu3:
+    type: cpu
+  cpu4:
+    type: cpu
+
+#############################################
+# Versão do Frigate
+#############################################
+#version: 0.14  # Versão do Frigate utilizada
+version: 0.15-1
