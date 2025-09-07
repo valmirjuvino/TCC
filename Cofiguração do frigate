@@ -6,8 +6,8 @@ mqtt:
   port: 1883  # Porta padrão do MQTT, pode ser ajustada conforme necessário
   topic_prefix: frigate  # Prefixo dos tópicos MQTT usados pelo Frigate
   client_id: frigate  # Identificador único do cliente MQTT
-  user: valmir  # Usuário do broker MQTT
-  password: 6394@NpyH  # Senha do usuário no MQTT
+  user:   # Usuário do broker MQTT
+  password:  # Senha do usuário no MQTT
   stats_interval: 60  # Intervalo (em segundos) para enviar métricas
 
 #############################################
