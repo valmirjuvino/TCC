@@ -1,0 +1,76 @@
+esphome:
+  name: controle-de-agua
+  friendly_name: CONTROLE DE AGUA
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: "096rBtHP1kA5L/CYiEnJaQC6bEDdwDclj45vHHk9nLY="
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "Controle-De-Agua"
+    password: "N6TqusgCJxud"
+
+captive_portal:
+
+web_server:
+  port: 80
+  auth:
+    username: valmir
+    password: "valmir"
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ESP IP Address
+    ssid:
+      name: ESP Connected SSID
+    bssid:
+      name: ESP Connected BSSID
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+    update_interval: 60s
+
+  - platform: pulse_counter
+    state_class: measurement
+    name: "Flujo agua"
+    id: flujo_agua
+    pin: 23
+    update_interval: 1s
+    filters:
+    - lambda: return (x / 400.0);
+    unit_of_measurement: "L/min"
+
+  - platform: integration
+    device_class: water
+    state_class: total_increasing
+    name: "Agua lavadora en m³"
+    unit_of_measurement: 'm³'
+    accuracy_decimals: 4
+    sensor: flujo_agua
+    time_unit: min
+    icon: "mdi:water"
+    filters:
+        - lambda: return (x / 1000);
+
+  - platform: integration
+    device_class: water
+    state_class: total_increasing
+    name: "Agua lavadora en litros"
+    unit_of_measurement: 'L'
+    accuracy_decimals: 2
+    sensor: flujo_agua
+    time_unit: min
+    icon: "mdi:water"

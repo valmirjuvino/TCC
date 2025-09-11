@@ -1,0 +1,105 @@
+#############################################
+# Configuração do MQTT
+#############################################
+mqtt:
+  host: 192.168.100.3  # Endereço do broker MQTT
+  port: 1883  # Porta padrão do MQTT, pode ser ajustada conforme necessário
+  topic_prefix: frigate  # Prefixo dos tópicos MQTT usados pelo Frigate
+  client_id: frigate  # Identificador único do cliente MQTT
+  user: !secret mqtt_user  # Usuário do broker MQTT
+  password: !secret mqtt_password  # Senha do usuário no MQTT
+  stats_interval: 60  # Intervalo (em segundos) para enviar métricas
+
+#############################################
+# Configuração de Câmeras
+#############################################
+cameras:
+  ENTRADA:
+    ffmpeg:
+      inputs:
+        - path: !secret rtsp_entrada  # Caminho RTSP da câmera
+          roles:
+            - detect  # Usado para detecção de objetos
+            - clips  # Grava clipes de vídeo
+            - rtmp  # Permite streaming para visualização
+          input_args:
+            - -rtsp_transport
+            - tcp  # Usa TCP para transporte RTSP
+            - -c:v
+            - hevc  # Codec HEVC para compressão
+    detect:
+      height: 640
+      width: 480
+      fps: 5
+    objects:
+      track:
+        - person
+        - dog
+        - car
+    record:
+      enabled: true
+      retain:
+        days: 360
+    snapshots:
+      enabled: true
+      timestamp: true
+      bounding_box: true
+      retain:
+        default: 360
+    onvif:
+      host: 192.168.100.32
+      port: 8899
+
+  GARAGEM:
+    ffmpeg:
+      inputs:
+        - path: !secret rtsp_garagem  # Caminho RTSP da câmera
+          roles:
+            - detect
+            - clips
+            - rtmp
+          input_args:
+            - -rtsp_transport
+            - tcp
+            - -c:v
+            - hevc
+    detect:
+      height: 640
+      width: 480
+      fps: 5
+    objects:
+      track:
+        - person
+        - dog
+        - car
+    record:
+      enabled: true
+      retain:
+        days: 360
+    snapshots:
+      enabled: true
+      timestamp: true
+      bounding_box: true
+      retain:
+        default: 0
+    onvif:
+      host: 192.168.100.31
+      port: 8899
+
+#############################################
+# Configuração de Detectores
+#############################################
+detectors:
+  cpu1:
+    type: cpu
+  cpu2:
+    type: cpu
+  cpu3:
+    type: cpu
+  cpu4:
+    type: cpu
+
+#############################################
+# Versão do Frigate
+#############################################
+version: 0.15-1

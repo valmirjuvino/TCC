@@ -1,0 +1,132 @@
+esphome:
+  name: esp32-pzem
+  friendly_name: esp32_pzem
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Habilitação do log via serial
+logger:
+
+# Configuração do protocolo API para comunicação com o Home Assistant
+api:
+  encryption:
+    key: "jTOcdBVwD9w+TXlopjTqxak0GDBuF/xzoLoVOMQ0qY8="
+
+# Acesso via OTA para atualizações sem fio
+ota:
+  - platform: esphome
+    password: "dc0bdb08f22e406351c69d6e943bef66"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp32-Pzem Fallback Hotspot"
+    password: "scmfDG8iWfo1"
+
+captive_portal:
+
+##############################################################
+######################## SERVIDOR WEB ########################
+##############################################################
+web_server:
+  port: 80
+  auth:
+    username: valmir
+    password: "valmir"
+
+###############################################################
+################# INFORMAÇOES DA REDE WIFI#####################
+###############################################################
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: ESP IP Address
+    ssid:
+      name: ESP Connected SSID
+    bssid:
+      name: ESP Connected BSSID
+
+#-------------------------------------------------------------#
+# Configuração da interface UART para comunicação com o PZEM-004T
+uart:
+  rx_pin: GPIO16
+  tx_pin: GPIO17
+  baud_rate: 9600
+
+##################################################################
+############  Configuração do sensor PZEM-004T ###################
+##################################################################
+sensor:
+  - platform: pzemac
+    id: pzem_sensor
+    current:
+      name: "PZEM Corrente"
+      device_class: current
+      state_class: measurement
+      unit_of_measurement: "A"
+    voltage:
+      name: "PZEM Voltagem"
+      device_class: voltage
+      state_class: measurement
+      unit_of_measurement: "V"
+    power:
+      name: "PZEM Potência"
+      device_class: power
+      state_class: measurement
+      unit_of_measurement: "W"
+      accuracy_decimals: 2
+    energy:
+      name: "PZEM Energia Total"
+      device_class: energy
+      state_class: total_increasing
+      unit_of_measurement: "kWh"
+      filters:
+      - multiply: 0.001
+      accuracy_decimals: 3
+    frequency:
+      name: "PZEM Frequência"
+      unit_of_measurement: "Hz"
+    power_factor:
+      name: "PZEM Fator de Potência"
+      unit_of_measurement: "%"
+    update_interval: 5s
+
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+    update_interval: 60s
+
+  - platform: uptime
+    type: seconds
+    name: Uptime Sensor
+
+##############################################################
+############# BOTÃO PARA RESETAR ENERGIA #####################
+##############################################################
+button:
+  - platform: template
+    name: "Reset PZEM Energia"
+    id: reset_pzem
+    on_press:
+      then:
+        - pzemac.reset_energy: 
+            id: pzem_sensor
+    entity_category: config
+
+##############################################################
+################# STATUS DO LED ##############################
+##############################################################
+output:
+  - platform: gpio
+    pin: GPIO2
+    id: led_status
+
+light:
+  - platform: binary
+    name: "LED Status"
+    output: led_status
